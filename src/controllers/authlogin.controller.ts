@@ -8,17 +8,17 @@ import axios from "axios";
 import useragent from "useragent";
 import { admittedCoursesModel } from "../models/admittedCourses.model.js";
 import { Request, Response } from "express";
+import config from "../config.js";
 dotenv.config();
 
 const authlogin = async (req: Request, res: Response) => {
 
-  console.log("Árrived");
-
   const userdetails = useragent.parse(req.headers["user-agent"]);
   const ipRaw = req.headers["x-forwarded-for"];
   const ip = ipRaw?.split(",")[0].trim();
+  const ipInfoToken = config.IPINFO_TOKEN || "";
   const response = await axios.get(
-    `https://ipinfo.io/${ip}/json?token=c13532365e8939`
+    `https://ipinfo.io/${ip}/json?token=${ipInfoToken}`
   );
 
   const mail = await collection.find({ email: req.body.email });
@@ -35,7 +35,7 @@ const authlogin = async (req: Request, res: Response) => {
         email: mail[0].email,
         reference: (Math.random() * 99 + 1).toFixed(2),
       },
-      JWT_ACCESS_SECRET ?? "",
+      JWT_ACCESS_SECRET,
       {
         expiresIn: "1h",
       }
@@ -45,7 +45,7 @@ const authlogin = async (req: Request, res: Response) => {
         email: mail[0].email,
         type: "Refresh",
       },
-      JWT_REFRESH_SECRET ?? "",
+      JWT_REFRESH_SECRET,
       {
         expiresIn: "3d",
       }
@@ -90,7 +90,10 @@ const authlogin = async (req: Request, res: Response) => {
     }
 
     res.status(200).cookie("TestCookie", accessToken, {
-      domain: ".localhost",
+      domain: config.COOKIE_DOMAIN || undefined,
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
     }).json({
       message: "OK",
       accessToken: accessToken,

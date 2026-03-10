@@ -5,6 +5,7 @@ import pool from "../../utils/postgresConnection.utils";
 import checkTableExists from "../../postgresModels/checkTableExists.postgres";
 import axios from "axios";
 import { sendRegistrationEmail } from "../../utils/mailsend.utils";
+import config from "../../config";
 
 interface IPInterface {
     country_name: string,
@@ -24,14 +25,13 @@ const homePage = async(req:Request, res:Response) => {
         }
         const ipRaw = req.headers["x-forwarded-for"];
         const ip = ipRaw?.split(",")[0].trim();
-        const info = await axios.get(`https://ipinfo.io/${ip}/json?token=c13532365e8939`)
+        const ipInfoToken = config.IPINFO_TOKEN || "";
+        const info = await axios.get(`https://ipinfo.io/${ip}/json?token=${ipInfoToken}`)
         const query = `INSERT INTO visits (ip_address, country, city, user_agent) values ($1, $2, $3, $4);`;
         await pool.query(query, [ip, info.data.country_name, info.data.city, null])
-
-        console.log("User entered successfully");
     }
     catch (error) {
-        console.log("Error occurred while entering user.", error);
+        console.log("Error occurred while entering user.");
     }
 }
 export default homePage

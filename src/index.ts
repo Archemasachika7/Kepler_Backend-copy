@@ -34,10 +34,16 @@ import referCodeRouter from "./routers/ReferCodeRouter.route.js";
 import checkTableExists from "./postgresModels/checkTableExists.postgres.js";
 import connectionRouter from "./routers/ConnectionRouter.routes.js";
 import ReferralMoneyTransfer from "./routers/ReferralMoneyTracker.route.js";
+import securityHeaders from "./middlewares/securityHeaders.js";
+import sanitizeInput from "./middlewares/sanitizeInput.js";
 
 const app = express();
 
 app.set("trust proxy", 1);  
+app.disable("x-powered-by");
+
+app.use(securityHeaders);
+app.use(sanitizeInput);
 
 const corsConfig = {
   origin: [
@@ -83,6 +89,10 @@ app.use((req, res, next) => {
   }
 })
 
+if (!config.JWT_ACCESS_SECRET || !config.JWT_REFRESH_SECRET) {
+  throw new Error("JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must be set in environment variables");
+}
+
 export const JWT_ACCESS_SECRET = config.JWT_ACCESS_SECRET;
 export const JWT_REFRESH_SECRET = config.JWT_REFRESH_SECRET;
 export const RAZORPAY_KEY_ID = config.RAZORPAY_KEY_ID;
@@ -90,7 +100,7 @@ export const RAZORPAY_SECRET = config.RAZORPAY_SECRET;
 export const userSockets = new Map<string, Set<WebSocket>>();
 export const OAuth2Client = new google.auth.OAuth2(config.GMAIL_CLIENT_ID, config.GMAIL_CLIENT_SECRET, config.GMAIL_REDIRECT_URI);
 
-export const codeRunnerIP = '13.200.236.32'
+export const codeRunnerIP = config.CODE_RUNNER_IP || '13.200.236.32'
 const port = config.PORT || 8000;
 const hostname = "0.0.0.0";
 export const redis = new Redis(config.REDIS_URL!, {
@@ -117,7 +127,6 @@ passport.use(
         `https://8ppzcvlk-8000.inc1.devtunnels.ms/auth/google/callback`,
     },
     (accessToken, refreshToken, profile, done) => {
-      console.log(profile);
       const userInfo = {
         id: profile.id,
         displayName: profile.displayName,
@@ -190,7 +199,15 @@ app.use("/connections", connectionRouter);
 app.use("/referralMoneyTracker", ReferralMoneyTransfer);
 
 app.post("/removeprofile", async (req, res) => {
+  if (!req.body.email || typeof req.body.email !== "string") {
+    res.status(400).json({ error: "Valid email is required" });
+    return;
+  }
   const mail = await collection.deleteOne({ email: req.body.email });
+  if (mail.deletedCount === 0) {
+    res.status(404).json({ error: "Profile not found" });
+    return;
+  }
   res.status(200).send("Deleted");
 });
 

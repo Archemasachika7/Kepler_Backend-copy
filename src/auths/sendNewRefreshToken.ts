@@ -5,14 +5,14 @@ import { Request, Response } from 'express';
 const createNewAccessToken = async(req: Request, res: Response)=>{
     const refreshToken = req.body.refreshToken
     try{
-        const decode = jwt.verify(refreshToken, JWT_REFRESH_SECRET ?? "");
+        const decode = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
         const email = decode.email;
         const accessToken = jwt.sign(
             {
                 type: "Access",
                 email: email,
             },
-            JWT_ACCESS_SECRET ?? "",
+            JWT_ACCESS_SECRET,
             {
                 expiresIn: '1h'
             }

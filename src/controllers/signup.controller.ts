@@ -5,10 +5,10 @@ import { redis } from '../index.js';
 import dotenv from 'dotenv'
 import { Request, Response } from 'express';
 import { generateReferralCode } from '../utils/generateReferralCode.js';
+import { hashPassword } from '../utils/password.utils.js';
 dotenv.config();
 
 const signupaction = async (req: Request, res: Response) => {
-  console.log(req.body.name + " came here");
   const data = req.body;
   const name = data.name;
   const phoneNumber = data.phone;
@@ -16,6 +16,9 @@ const signupaction = async (req: Request, res: Response) => {
   data.refercode = generateReferralCode(emailId[0], phoneNumber[0], name[0]);
   data.isvalid = true;
   data.usenumber = 5;
+  if (data.password) {
+    data.password = await hashPassword(data.password);
+  }
   const mail = await collection.find({ email: emailId });
   if (mail.length == 0) {
     const otp = crypto.randomInt(100000, 999999).toString();

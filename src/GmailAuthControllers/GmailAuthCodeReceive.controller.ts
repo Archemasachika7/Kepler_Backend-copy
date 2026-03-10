@@ -9,15 +9,12 @@ const gmailAuthTokenReceiver = async(req: Request, res: Response) => {
     }
     try {
         const { tokens } = await OAuth2Client.getToken(code);
-        console.log("Tokens received ", tokens);
         res.send(`
             <h3>Tokens Received</h3>
-            <p>Access Token: ${tokens.access_token}</p>
-            <p>Refresh Token: ${tokens.refresh_token}</p>
+            <p>Tokens have been received successfully. Store them securely.</p>
         `);
     }
     catch(err) {
-        console.log(err);
         res.send("Error receiving tokens");
     }
 }

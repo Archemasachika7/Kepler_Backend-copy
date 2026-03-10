@@ -7,7 +7,7 @@ import { executive_emails } from "../local_dbs";
 const checkValidity = async(req: Request, res: Response, next: NextFunction) => {
     const fullAccessToken = req.headers['authorizationaccesstoken']
     const token = fullAccessToken?.split(' ')[1];
-    const decode = jwt.verify(token, JWT_ACCESS_SECRET ?? "");
+    const decode = jwt.verify(token, JWT_ACCESS_SECRET);
     const emailId = decode.email;
 
     const courseDetails = await admittedCoursesModel.find({email: emailId});
