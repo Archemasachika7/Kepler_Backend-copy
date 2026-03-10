@@ -2,6 +2,8 @@ import dotenv from "dotenv"
 dotenv.config();
 
 interface envVariablesInterface { 
+    SERVER: string | undefined,
+    DATABASE: string | undefined,
     JWT_ACCESS_SECRET: string | undefined,
     JWT_REFRESH_SECRET: string | undefined,
     RAZORPAY_KEY_ID: string | undefined,
@@ -21,6 +23,8 @@ interface envVariablesInterface {
 };
 
 const config: envVariablesInterface = {
+    SERVER: process.env.SERVER,
+    DATABASE: process.env.DATABASE,
     JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
     RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
