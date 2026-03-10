@@ -7,9 +7,11 @@ import { hashPassword } from '../utils/password.utils.js';
 dotenv.config()
 
 const generateReferralCode = (email: string) => {
-  const secret = config.REFERRAL_SECRET || 'your-secure-secret-key';
+  if (!config.REFERRAL_SECRET) {
+    throw new Error("REFERRAL_SECRET must be set in environment variables");
+  }
   const hash = crypto
-    .createHmac('sha256', secret)
+    .createHmac('sha256', config.REFERRAL_SECRET)
     .update(email)
     .digest('hex');
 

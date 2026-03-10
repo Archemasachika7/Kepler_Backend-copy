@@ -21,18 +21,10 @@ const sanitizeInput = (req: Request, _res: Response, next: NextFunction) => {
     req.body = sanitizeValue(req.body);
   }
   if (req.query && typeof req.query === "object") {
-    for (const key of Object.keys(req.query)) {
-      if (key.startsWith("$")) {
-        delete req.query[key];
-      }
-    }
+    req.query = sanitizeValue(req.query) as typeof req.query;
   }
   if (req.params && typeof req.params === "object") {
-    for (const key of Object.keys(req.params)) {
-      if (key.startsWith("$")) {
-        delete req.params[key];
-      }
-    }
+    req.params = sanitizeValue(req.params) as typeof req.params;
   }
   next();
 };

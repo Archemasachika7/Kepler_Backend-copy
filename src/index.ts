@@ -100,7 +100,7 @@ export const RAZORPAY_SECRET = config.RAZORPAY_SECRET;
 export const userSockets = new Map<string, Set<WebSocket>>();
 export const OAuth2Client = new google.auth.OAuth2(config.GMAIL_CLIENT_ID, config.GMAIL_CLIENT_SECRET, config.GMAIL_REDIRECT_URI);
 
-export const codeRunnerIP = config.CODE_RUNNER_IP || '13.200.236.32'
+export const codeRunnerIP = config.CODE_RUNNER_IP || ''
 const port = config.PORT || 8000;
 const hostname = "0.0.0.0";
 export const redis = new Redis(config.REDIS_URL!, {

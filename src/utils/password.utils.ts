@@ -2,7 +2,7 @@ import crypto from "crypto";
 
 const SALT_LENGTH = 16;
 const KEY_LENGTH = 64;
-const SCRYPT_COST = 16384;
+const SCRYPT_COST = 32768;
 
 export const hashPassword = (password: string): Promise<string> => {
   return new Promise((resolve, reject) => {
