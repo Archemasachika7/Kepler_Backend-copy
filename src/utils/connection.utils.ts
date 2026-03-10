@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
-import dotenv from 'dotenv'
-dotenv.config();
+import config from "../config.js";
 import logger from "./winston_logger.js";
 
-const server = process.env.SERVER;
-const database = process.env.DATABASE;
+const server = config.SERVER;
+const database = config.DATABASE;
 (async () => {
     try {
       await mongoose.connect(`mongodb+srv://${server}/${database}`);
