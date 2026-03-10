@@ -8,6 +8,8 @@ import axios from "axios";
 import useragent from "useragent";
 import { admittedCoursesModel } from "../models/admittedCourses.model.js";
 import { Request, Response } from "express";
+import { verifyPassword } from "../utils/password.utils.js";
+import config from "../config.js";
 dotenv.config();
 
 const loginaction = async (req: Request, res: Response) => {
@@ -15,8 +17,9 @@ const loginaction = async (req: Request, res: Response) => {
   const userDetails = useragent.parse(req.headers["user-agent"]);
   const ipRaw = req.headers["x-forwarded-for"];
   const ip = ipRaw?.split(",")[0].trim();
+  const ipInfoToken = config.IPINFO_TOKEN || "";
   const response = await axios.get(
-    `https://ipinfo.io/${ip}/json?token=c13532365e8939`
+    `https://ipinfo.io/${ip}/json?token=${ipInfoToken}`
   );
 
   const mail = await collection.find({ email: req.body.email });
@@ -29,7 +32,15 @@ const loginaction = async (req: Request, res: Response) => {
     return;
   }
 
-  if (mail[0].password !== req.body.password) {
+  const storedPassword = mail[0].password;
+  let passwordValid = false;
+  if (storedPassword && storedPassword.includes(":")) {
+    passwordValid = await verifyPassword(req.body.password, storedPassword);
+  } else {
+    passwordValid = storedPassword === req.body.password;
+  }
+
+  if (!passwordValid) {
     res.status(400).json({ message: "Wrong Password" });
     return;
   }
@@ -40,7 +51,7 @@ const loginaction = async (req: Request, res: Response) => {
       email: mail[0].email,
       identifier: (Math.random() * 99 + 1).toFixed(2),
     },
-    JWT_ACCESS_SECRET ?? "",
+    JWT_ACCESS_SECRET,
     {
       expiresIn: "1h",
     }
@@ -50,7 +61,7 @@ const loginaction = async (req: Request, res: Response) => {
       email: mail[0].email,
       type: "Refresh",
     },
-    JWT_REFRESH_SECRET ?? "",
+    JWT_REFRESH_SECRET,
     {
       expiresIn: "3d",
     }
@@ -92,12 +103,14 @@ const loginaction = async (req: Request, res: Response) => {
         lastDate = val?.lastDateToPay!.toLocaleDateString("en-IN")
         courses.push(val.name!);
       }
-      console.log(val?.lastDateToPay!.toLocaleDateString("en-IN"))
     })
   }
 
   res.status(200).cookie("TestCookie", accessToken, {
-      domain: ".localhost",
+      domain: config.COOKIE_DOMAIN || undefined,
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
     }).json({
       message: "OK",
       accessToken: accessToken,

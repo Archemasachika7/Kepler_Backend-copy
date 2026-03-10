@@ -17,7 +17,12 @@ interface envVariablesInterface {
     GMAIL_CLIENT_ID: string | undefined,
     GMAIL_CLIENT_SECRET: string | undefined,
     GMAIL_REFRESH_TOKEN: string | undefined,
-    GMAIL_REDIRECT_URI: string | undefined
+    GMAIL_REDIRECT_URI: string | undefined,
+    IPINFO_TOKEN: string | undefined,
+    REFERRAL_SECRET: string | undefined,
+    CODE_RUNNER_IP: string | undefined,
+    ADMIN_SECRET_CODES: string | undefined,
+    COOKIE_DOMAIN: string | undefined,
 };
 
 const config: envVariablesInterface = {
@@ -36,7 +41,12 @@ const config: envVariablesInterface = {
     GMAIL_CLIENT_ID: process.env.GMAIL_CLIENT_ID,
     GMAIL_CLIENT_SECRET: process.env.GMAIL_CLIENT_SECRET,
     GMAIL_REDIRECT_URI: process.env.GMAIL_REDIRECT_URI,
-    GMAIL_REFRESH_TOKEN: process.env.GMAIL_REFRESH_TOKEN
+    GMAIL_REFRESH_TOKEN: process.env.GMAIL_REFRESH_TOKEN,
+    IPINFO_TOKEN: process.env.IPINFO_TOKEN,
+    REFERRAL_SECRET: process.env.REFERRAL_SECRET,
+    CODE_RUNNER_IP: process.env.CODE_RUNNER_IP,
+    ADMIN_SECRET_CODES: process.env.ADMIN_SECRET_CODES,
+    COOKIE_DOMAIN: process.env.COOKIE_DOMAIN,
 }
 
 export default config;

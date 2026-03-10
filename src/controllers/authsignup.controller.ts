@@ -2,10 +2,12 @@ import crypto from 'crypto'
 import { collection } from '../models/collection.model.js';
 import dotenv from 'dotenv'
 import { Request, Response } from 'express';
+import config from '../config.js';
+import { hashPassword } from '../utils/password.utils.js';
 dotenv.config()
 
 const generateReferralCode = (email: string) => {
-  const secret = 'your-secure-secret-key'; // Replace with your own secret key
+  const secret = config.REFERRAL_SECRET || 'your-secure-secret-key';
   const hash = crypto
     .createHmac('sha256', secret)
     .update(email)
@@ -15,8 +17,10 @@ const generateReferralCode = (email: string) => {
 };
 
 const authsignupaction = async (req: Request, res: Response) => {
-  console.log(req.body.name + " came here");
   let message = "";
+  if (req.body.password) {
+    req.body.password = await hashPassword(req.body.password);
+  }
   const data = new collection(req.body);
   data.refercode = generateReferralCode(data.email)
   data.isvalid = 1
